@@ -9,16 +9,29 @@ import {
   SkillIcon,
   SunIcon,
 } from "../../ui/icons";
+import { t, type TranslationKey } from "../../i18n";
 
+/** Static definition: keys and metadata that never depend on the language. */
+interface SettingsSectionSource {
+  readonly id: string;
+  readonly titleKey: TranslationKey;
+  readonly groupKey: TranslationKey;
+  readonly icon: ReactNode;
+  /** Words people search for that are not in the title, such as the page's row titles. */
+  readonly keywords: readonly string[];
+  readonly descriptionKey: TranslationKey;
+  /** Pages that read or write one workspace's runtime. */
+  readonly needsWorkspace: boolean;
+}
+
+/** Resolved per render: titles and descriptions in the active language. */
 export interface SettingsSectionDefinition {
   readonly id: string;
   readonly title: string;
   readonly group: string;
   readonly icon: ReactNode;
-  /** Words people search for that are not in the title, such as the page's row titles. */
   readonly keywords: readonly string[];
   readonly description: (workspaceName: string) => string;
-  /** Pages that read or write one workspace's runtime. */
   readonly needsWorkspace: boolean;
 }
 
@@ -26,68 +39,79 @@ export interface SettingsSectionDefinition {
 export const SETTINGS_SECTIONS = [
   {
     id: "general",
-    title: "General",
-    group: "App",
+    titleKey: "settings.sections.general",
+    groupKey: "settings.sections.groupApp",
     icon: <SettingsIcon />,
     keywords: ["model settings scope", "per repo", "skill slash commands", "terminal", "shell"],
-    description: () => "App and runtime defaults.",
+    descriptionKey: "settings.sections.generalDescription",
     needsWorkspace: false,
   },
   {
     id: "appearance",
-    title: "Appearance",
-    group: "App",
+    titleKey: "settings.sections.appearance",
+    groupKey: "settings.sections.groupApp",
     icon: <SunIcon />,
-    keywords: ["theme", "light", "dark", "system", "preset", "colors", "transparency"],
-    description: () => "Choose light, dark or system mode and a color preset.",
+    keywords: [
+      "theme",
+      "light",
+      "dark",
+      "system",
+      "preset",
+      "colors",
+      "transparency",
+      "language",
+      "主题",
+      "语言",
+    ],
+    descriptionKey: "settings.sections.appearanceDescription",
     needsWorkspace: false,
   },
   {
     id: "notifications",
-    title: "Notifications",
-    group: "App",
+    titleKey: "settings.sections.notifications",
+    groupKey: "settings.sections.groupApp",
     icon: <BellIcon />,
-    keywords: ["alerts", "background", "completion", "failures", "approval", "macos"],
-    description: () => "Choose which background events alert you.",
+    keywords: ["alerts", "background", "completion", "failures", "approval", "macos", "通知"],
+    descriptionKey: "settings.sections.notificationsDescription",
     needsWorkspace: false,
   },
   {
     id: "shortcuts",
-    title: "Keyboard shortcuts",
-    group: "App",
+    titleKey: "settings.sections.shortcuts",
+    groupKey: "settings.sections.groupApp",
     icon: <KeyboardIcon />,
-    keywords: ["keys", "hotkeys", "keybindings"],
-    description: () => "Shortcuts available across the app.",
+    keywords: ["keys", "hotkeys", "keybindings", "快捷键"],
+    descriptionKey: "settings.sections.shortcutsDescription",
     needsWorkspace: false,
   },
   {
     id: "providers",
-    title: "Providers",
-    group: "Agent",
+    titleKey: "settings.sections.providers",
+    groupKey: "settings.sections.groupAgent",
     icon: <PlugIcon />,
-    keywords: ["login", "logout", "oauth", "api key", "auth", "custom endpoint"],
-    description: (workspaceName) => `Connect providers and manage auth for ${workspaceName}.`,
+    keywords: ["login", "logout", "oauth", "api key", "auth", "custom endpoint", "登录", "密钥"],
+    descriptionKey: "settings.sections.providersDescription",
     needsWorkspace: true,
   },
   {
     id: "models",
-    title: "Models",
-    group: "Agent",
+    titleKey: "settings.sections.models",
+    groupKey: "settings.sections.groupAgent",
     icon: <ModelIcon />,
-    keywords: ["default model", "reasoning", "thinking", "enabled models"],
-    description: () => "Choose the default model and which models appear in pickers.",
+    keywords: ["default model", "reasoning", "thinking", "enabled models", "模型"],
+    descriptionKey: "settings.sections.modelsDescription",
     needsWorkspace: true,
   },
   {
     id: "mcp",
-    title: "MCP servers",
-    group: "Agent",
+    titleKey: "settings.sections.mcp",
+    groupKey: "settings.sections.groupAgent",
     icon: <ExtensionIcon />,
     keywords: ["mcp", "mcp.json", "model context protocol", "servers", "code mode", "codemode"],
-    description: () => "Add, remove and switch the MCP servers pi connects in each thread.",
+    descriptionKey: "settings.sections.mcpDescription",
     needsWorkspace: true,
   },
-] as const satisfies readonly SettingsSectionDefinition[];
+] as const satisfies readonly SettingsSectionSource[];
 
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]["id"];
 
@@ -98,15 +122,36 @@ export const SETTINGS_NAV_ITEMS = [
   ...SETTINGS_SECTIONS,
   {
     id: CUSTOMIZE_SECTION_ID,
-    title: "Skills and extensions",
-    group: "Customize",
+    titleKey: "settings.sections.customize",
+    groupKey: "settings.sections.groupCustomize",
     icon: <SkillIcon />,
-    keywords: ["skills", "extensions", "plugins", "slash commands", "tools"],
+    keywords: ["skills", "extensions", "plugins", "slash commands", "tools", "技能", "扩展"],
+    descriptionKey: "settings.sections.customizeDescription",
+    needsWorkspace: false,
   },
-] as const;
+] as const satisfies readonly SettingsSectionSource[];
 
 export function settingsSectionDefinition(section: SettingsSection): SettingsSectionDefinition {
-  return SETTINGS_SECTIONS.find((definition) => definition.id === section) ?? SETTINGS_SECTIONS[0];
+  const source =
+    SETTINGS_SECTIONS.find((definition) => definition.id === section) ?? SETTINGS_SECTIONS[0];
+  return resolveSection(source);
+}
+
+export function settingsNavItemDefinition(id: string): SettingsSectionDefinition | undefined {
+  const source = SETTINGS_NAV_ITEMS.find((definition) => definition.id === id);
+  return source ? resolveSection(source) : undefined;
+}
+
+function resolveSection(source: SettingsSectionSource): SettingsSectionDefinition {
+  return {
+    id: source.id,
+    title: t(source.titleKey),
+    group: t(source.groupKey),
+    icon: source.icon,
+    keywords: source.keywords,
+    description: (workspaceName: string) => t(source.descriptionKey, { workspace: workspaceName }),
+    needsWorkspace: source.needsWorkspace,
+  };
 }
 
 export function sectionTitle(section: SettingsSection): string {

@@ -1,4 +1,5 @@
 import { useMemo, useRef } from "react";
+import { t, useI18n } from "../../i18n";
 import type {
   SessionTranscriptCustomMessage,
   SessionTranscriptMessage,
@@ -67,6 +68,8 @@ export function TimelineItem({
   readonly annotationMarkers?: readonly AnnotationMarker[];
   readonly onOpenAnnotation?: OpenAnnotation;
 }) {
+  // Subscribes each measured row so memoized rows still follow language changes.
+  useI18n();
   switch (item.kind) {
     case "turn-marker":
       return <TimelineTurnMarkerItem item={item} />;
@@ -205,7 +208,9 @@ function TimelineMessage({
     return (
       <article className="timeline-item timeline-item--summary-card">
         <div className="timeline-item__summary-eyebrow">
-          {item.role === "branchSummary" ? "Branch summary" : "Compaction summary"}
+          {item.role === "branchSummary"
+            ? t("timeline.branchSummary")
+            : t("timeline.compactionSummary")}
         </div>
         <MessageMarkdown text={item.text} />
       </article>
@@ -228,18 +233,14 @@ function TimelineMessage({
           <button
             type="button"
             className="timeline-item__action"
-            title={
-              onForkFromMessage
-                ? "Fork conversation from this point"
-                : "Fork is available when the run finishes"
-            }
-            aria-label="Fork conversation from this point"
+            title={onForkFromMessage ? t("timeline.forkFromHere") : t("timeline.forkAfterFinish")}
+            aria-label={t("timeline.forkFromHere")}
             data-testid="fork-from-message"
             disabled={!onForkFromMessage}
             onClick={() => onForkFromMessage?.(sourceMessageIndex, item.text)}
           >
             <ForkIcon />
-            <span className="timeline-item__action-label">Fork</span>
+            <span className="timeline-item__action-label">{t("timeline.fork")}</span>
           </button>
         </div>
       ) : null}
@@ -326,7 +327,7 @@ function TimelineToolCallItem({
         </button>
         {filePath && onViewFileInDiff ? (
           <button
-            aria-label={`View ${filePath} in changes`}
+            aria-label={t("timeline.viewInChanges", { file: filePath })}
             className="icon-button timeline-tool__view-in-diff"
             data-testid="timeline-tool-view-in-diff"
             type="button"
@@ -371,7 +372,7 @@ function TimelineToolCallItem({
                   className="icon-button timeline-tool__copy"
                   type="button"
                   onClick={handleCopy}
-                  aria-label="Copy"
+                  aria-label={t("common.copy")}
                 >
                   <CopyIcon />
                 </button>
@@ -385,7 +386,7 @@ function TimelineToolCallItem({
                   className="icon-button timeline-tool__copy"
                   type="button"
                   onClick={handleCopy}
-                  aria-label="Copy"
+                  aria-label={t("common.copy")}
                 >
                   <CopyIcon />
                 </button>
@@ -474,15 +475,17 @@ function formatToolContent(input: unknown, output: unknown): string {
 }
 
 function statusLabel(status: "running" | "success" | "error") {
-  if (status === "running") return "running";
-  if (status === "success") return "done";
-  return "failed";
+  if (status === "running") return t("timeline.toolRunning");
+  if (status === "success") return t("timeline.toolDone");
+  return t("timeline.toolFailed");
 }
 
 function TimelineTurnMarkerItem({ item }: { readonly item: TimelineTurnMarker }) {
   return (
     <div className="timeline-turn-marker" data-testid="timeline-turn-marker">
-      <span className="timeline-turn-marker__label">{`Worked for ${formatWorkedDuration(item.durationMs)}`}</span>
+      <span className="timeline-turn-marker__label">
+        {t("timeline.workedFor", { duration: formatWorkedDuration(item.durationMs) })}
+      </span>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import type {
   RuntimeSnapshot,
 } from "@pi-gui/session-driver/runtime-types";
 import type { ExtensionCommandCompatibilityRecord } from "../../../contracts/desktop-state";
+import { t } from "../../i18n";
 import { titleCase } from "../../lib/string-utils";
 
 export type ComposerSlashCommandKind =
@@ -63,160 +64,168 @@ export interface ComposerProviderOption extends ComposerSlashOption {
   readonly providerId: string;
 }
 
-export const MODEL_OPTIONS_EMPTY_TITLE = "No models available";
-export const MODEL_OPTIONS_EMPTY_DESCRIPTION =
-  "Open Settings to enable a model or log in to a provider.";
+export function modelOptionsEmptyTitle(): string {
+  return t("composer.modelOptionsEmptyTitle");
+}
 
-const HOST_ACTION_SLASH_COMMANDS: readonly ComposerSlashCommand[] = [
-  {
-    id: "host:model",
-    kind: "model",
-    command: "/model",
-    template: "/model",
-    title: "Model",
-    description: "Choose the model for this session",
-    submitMode: "pick-option",
-    section: "host",
-  },
-  {
-    id: "host:thinking",
-    kind: "thinking",
-    command: "/thinking",
-    template: "/thinking",
-    title: "Reasoning",
-    description: "Set thinking level for this session",
-    submitMode: "pick-option",
-    section: "host",
-  },
-  {
-    id: "host:tree",
-    kind: "tree",
-    command: "/tree",
-    template: "/tree",
-    title: "Tree",
-    description: "Browse and jump between branches in this session",
-    submitMode: "immediate",
-    section: "host",
-  },
-  {
-    id: "host:status",
-    kind: "status",
-    command: "/status",
-    template: "/status",
-    title: "Status",
-    description: "Show current session overrides in the timeline",
-    submitMode: "immediate",
-    section: "host",
-  },
-  {
-    id: "host:login",
-    kind: "login",
-    command: "/login",
-    template: "/login",
-    title: "Login",
-    description: "Authenticate a provider for this workspace",
-    submitMode: "pick-option",
-    section: "host",
-  },
-  {
-    id: "host:logout",
-    kind: "logout",
-    command: "/logout",
-    template: "/logout",
-    title: "Logout",
-    description: "Remove a provider login from this workspace",
-    submitMode: "pick-option",
-    section: "host",
-  },
-  {
-    id: "host:settings",
-    kind: "settings",
-    command: "/settings",
-    template: "/settings",
-    title: "Settings",
-    description: "Open model, skill, and notification settings",
-    submitMode: "immediate",
-    section: "host",
-  },
-  {
-    id: "host:scoped-models",
-    kind: "scoped-models",
-    command: "/scoped-models",
-    template: "/scoped-models",
-    title: "Enabled models",
-    description: "Choose which models appear in pickers",
-    submitMode: "immediate",
-    section: "host",
-  },
-  {
-    id: "host:session",
-    kind: "session",
-    command: "/session",
-    template: "/session",
-    title: "Session",
-    description: "Show current session details in the timeline",
-    submitMode: "immediate",
-    section: "host",
-  },
-  {
-    id: "host:name",
-    kind: "name",
-    command: "/name",
-    template: "/name New thread title",
-    title: "Rename",
-    description: "Rename the current session",
-    submitMode: "prefill",
-    section: "host",
-  },
-  {
-    id: "host:compact",
-    kind: "compact",
-    command: "/compact",
-    template: "/compact",
-    title: "Compact",
-    description: "Compact session context now",
-    submitMode: "immediate",
-    section: "host",
-  },
-  {
-    id: "host:reload",
-    kind: "reload",
-    command: "/reload",
-    template: "/reload",
-    title: "Reload",
-    description: "Reload prompts, skills, and session resources",
-    submitMode: "immediate",
-    section: "host",
-  },
-] as const;
+export function modelOptionsEmptyDescription(): string {
+  return t("composer.modelOptionsEmptyDescription");
+}
 
-export const THINKING_OPTIONS: readonly ComposerSlashOption[] = [
-  {
-    value: "low",
-    label: "Low",
-    description: "Fast responses with lighter reasoning",
-  },
-  {
-    value: "medium",
-    label: "Medium",
-    description: "Balances speed and reasoning depth for everyday tasks",
-  },
-  {
-    value: "high",
-    label: "High",
-    description: "Greater reasoning depth for complex problems",
-  },
-  {
-    value: "xhigh",
-    label: "Extra High",
-    description: "Extra high reasoning depth for complex problems",
-  },
-  {
-    value: "max",
-    label: "Max",
-    description: "Maximum reasoning depth for supported models",
-  },
-] as const;
+function hostActionSlashCommands(): readonly ComposerSlashCommand[] {
+  return [
+    {
+      id: "host:model",
+      kind: "model",
+      command: "/model",
+      template: "/model",
+      title: t("composer.cmd.model"),
+      description: t("composer.cmd.modelDescription"),
+      submitMode: "pick-option",
+      section: "host",
+    },
+    {
+      id: "host:thinking",
+      kind: "thinking",
+      command: "/thinking",
+      template: "/thinking",
+      title: t("composer.cmd.reasoning"),
+      description: t("composer.cmd.reasoningDescription"),
+      submitMode: "pick-option",
+      section: "host",
+    },
+    {
+      id: "host:tree",
+      kind: "tree",
+      command: "/tree",
+      template: "/tree",
+      title: t("composer.cmd.tree"),
+      description: t("composer.cmd.treeDescription"),
+      submitMode: "immediate",
+      section: "host",
+    },
+    {
+      id: "host:status",
+      kind: "status",
+      command: "/status",
+      template: "/status",
+      title: t("composer.cmd.status"),
+      description: t("composer.cmd.statusDescription"),
+      submitMode: "immediate",
+      section: "host",
+    },
+    {
+      id: "host:login",
+      kind: "login",
+      command: "/login",
+      template: "/login",
+      title: t("composer.cmd.login"),
+      description: t("composer.cmd.loginDescription"),
+      submitMode: "pick-option",
+      section: "host",
+    },
+    {
+      id: "host:logout",
+      kind: "logout",
+      command: "/logout",
+      template: "/logout",
+      title: t("composer.cmd.logout"),
+      description: t("composer.cmd.logoutDescription"),
+      submitMode: "pick-option",
+      section: "host",
+    },
+    {
+      id: "host:settings",
+      kind: "settings",
+      command: "/settings",
+      template: "/settings",
+      title: t("composer.cmd.settings"),
+      description: t("composer.cmd.settingsDescription"),
+      submitMode: "immediate",
+      section: "host",
+    },
+    {
+      id: "host:scoped-models",
+      kind: "scoped-models",
+      command: "/scoped-models",
+      template: "/scoped-models",
+      title: t("composer.cmd.enabledModels"),
+      description: t("composer.cmd.enabledModelsDescription"),
+      submitMode: "immediate",
+      section: "host",
+    },
+    {
+      id: "host:session",
+      kind: "session",
+      command: "/session",
+      template: "/session",
+      title: t("composer.cmd.session"),
+      description: t("composer.cmd.sessionDescription"),
+      submitMode: "immediate",
+      section: "host",
+    },
+    {
+      id: "host:name",
+      kind: "name",
+      command: "/name",
+      template: "/name New thread title",
+      title: t("composer.cmd.rename"),
+      description: t("composer.cmd.renameDescription"),
+      submitMode: "prefill",
+      section: "host",
+    },
+    {
+      id: "host:compact",
+      kind: "compact",
+      command: "/compact",
+      template: "/compact",
+      title: t("composer.cmd.compact"),
+      description: t("composer.cmd.compactDescription"),
+      submitMode: "immediate",
+      section: "host",
+    },
+    {
+      id: "host:reload",
+      kind: "reload",
+      command: "/reload",
+      template: "/reload",
+      title: t("composer.cmd.reload"),
+      description: t("composer.cmd.reloadDescription"),
+      submitMode: "immediate",
+      section: "host",
+    },
+  ];
+}
+
+export function thinkingOptions(): readonly ComposerSlashOption[] {
+  return [
+    {
+      value: "low",
+      label: t("composer.thinking.low"),
+      description: t("composer.thinking.lowDescription"),
+    },
+    {
+      value: "medium",
+      label: t("composer.thinking.medium"),
+      description: t("composer.thinking.mediumDescription"),
+    },
+    {
+      value: "high",
+      label: t("composer.thinking.high"),
+      description: t("composer.thinking.highDescription"),
+    },
+    {
+      value: "xhigh",
+      label: t("composer.thinking.xhigh"),
+      description: t("composer.thinking.xhighDescription"),
+    },
+    {
+      value: "max",
+      label: t("composer.thinking.max"),
+      description: t("composer.thinking.maxDescription"),
+    },
+  ];
+}
 
 export function buildSlashCommandSections(
   query: string,
@@ -250,7 +259,7 @@ export function buildSlashCommandSections(
     }))
     .filter((command) => matchesCommand(command, normalizedQuery));
   const allowTreeCommand = options.allowTreeCommand ?? true;
-  const hostMatches = HOST_ACTION_SLASH_COMMANDS.filter(
+  const hostMatches = hostActionSlashCommands().filter(
     (command) =>
       (allowTreeCommand || command.kind !== "tree") && matchesCommand(command, normalizedQuery),
   );
@@ -266,12 +275,12 @@ export function buildSlashCommandSections(
   );
   const runtimeSection: ComposerSlashCommandSection = {
     id: "runtime",
-    title: runtimeMatches.length > 0 ? "Runtime Commands" : undefined,
+    title: runtimeMatches.length > 0 ? t("composer.runtimeCommands") : undefined,
     items: runtimeMatches,
   };
   const hostSection: ComposerSlashCommandSection = {
     id: "host",
-    title: hostMatches.length > 0 ? "Host Actions" : undefined,
+    title: hostMatches.length > 0 ? t("composer.hostActions") : undefined,
     items: hostMatches,
   };
   const sections: ComposerSlashCommandSection[] =
@@ -349,7 +358,7 @@ export function slashOptionsForCommand(
   }
 
   if (command.kind === "thinking") {
-    return THINKING_OPTIONS;
+    return thinkingOptions();
   }
   if (command.kind === "model") {
     return buildModelOptions(runtime);
@@ -377,8 +386,8 @@ export function slashOptionEmptyState(
 
   if (command.kind === "model" && buildModelOptions(runtime).length === 0) {
     return {
-      title: MODEL_OPTIONS_EMPTY_TITLE,
-      description: MODEL_OPTIONS_EMPTY_DESCRIPTION,
+      title: modelOptionsEmptyTitle(),
+      description: modelOptionsEmptyDescription(),
     };
   }
 
@@ -426,24 +435,24 @@ function buildSlashSearchAliases(command: ComposerSlashCommand): readonly string
 
 function describeProvider(provider: RuntimeProviderRecord): string {
   if (provider.authSource === "oauth") {
-    return "OAuth connected";
+    return t("composer.provider.oauthConnected");
   }
   if (provider.authSource === "auth_file") {
-    return "Saved API key";
+    return t("composer.provider.savedApiKey");
   }
   if (provider.authSource === "env") {
-    return "Configured via environment";
+    return t("composer.provider.configuredViaEnvironment");
   }
   if (provider.authSource === "external") {
-    return "Configured externally";
+    return t("composer.provider.configuredExternally");
   }
   if (provider.oauthSupported) {
-    return "OAuth available";
+    return t("composer.provider.oauthAvailable");
   }
   if (provider.apiKeySetupSupported) {
-    return "Needs API key";
+    return t("composer.provider.needsApiKey");
   }
-  return "Available";
+  return t("composer.provider.available");
 }
 
 function compareProviders(left: RuntimeProviderRecord, right: RuntimeProviderRecord): number {
@@ -479,7 +488,7 @@ function providerRankForId(
 function summarizeSkillDescription(value: string): string {
   const trimmed = value.trim().replace(/\s+/g, " ");
   if (!trimmed) {
-    return "Reusable workflow";
+    return t("composer.runtimeCommand.reusableWorkflow");
   }
 
   const firstSentence = trimmed.match(/^[^.!?]+[.!?]?/)?.[0]?.trim() ?? trimmed;
@@ -498,20 +507,20 @@ function formatRuntimeCommandDescription(command: RuntimeCommandRecord): string 
     return command.description.trim();
   }
   if (command.source === "prompt") {
-    return "Prompt template";
+    return t("composer.runtimeCommand.promptTemplate");
   }
   if (command.source === "skill") {
-    return "Skill command";
+    return t("composer.runtimeCommand.skillCommand");
   }
-  return "Extension command";
+  return t("composer.runtimeCommand.extensionCommand");
 }
 
 function formatRuntimeSourceLabel(command: RuntimeCommandRecord): string {
   if (command.source === "skill") {
-    return "Skill";
+    return t("composer.source.skill");
   }
   if (command.source === "prompt") {
-    return "Prompt";
+    return t("composer.source.prompt");
   }
   return command.sourceInfo.source.replace(/^extension:/, "");
 }
@@ -536,7 +545,7 @@ export function parseTreeComposerCommand(
   if (rest.length > 0) {
     return {
       type: "error",
-      message: "/tree does not take arguments.",
+      message: t("composer.treeNoArguments"),
     };
   }
 

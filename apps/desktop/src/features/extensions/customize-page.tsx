@@ -12,6 +12,7 @@ import { RefreshIcon, SearchIcon } from "../../ui/icons";
 import { extensionScopeLabel } from "./extension-display";
 import { ExtensionsTab } from "./extensions-view";
 import { SkillsTab } from "./skills-view";
+import { t, useI18n } from "../../i18n";
 
 export type CustomizeTab = "skills" | "extensions";
 
@@ -32,8 +33,10 @@ interface CustomizePageProps {
   readonly onOpenExtensionFolder: (path: string) => void;
 }
 
-const NEW_SKILL_PROMPT =
-  "Create a new skill for this workspace and explain which files you will add.";
+/** Prefilled in the composer when the user clicks New skill; resolved per language. */
+function newSkillPrompt(): string {
+  return t("customize.newSkillPrompt");
+}
 
 /** Codex's Plugins page: tabs with counts over one searchable, grouped list per tab. */
 export function CustomizePage({
@@ -51,6 +54,7 @@ export function CustomizePage({
   onToggleExtension,
   onOpenExtensionFolder,
 }: CustomizePageProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | undefined>();
   // The palette and the workspace picker change what is listed without going through the tabs,
@@ -102,18 +106,19 @@ export function CustomizePage({
       <div className="conversation settings-view">
         <header className="view-header">
           <div>
-            <h1 className="view-header__title">Skills and extensions</h1>
+            <h1 className="view-header__title">{t("customize.title")}</h1>
             <p className="view-header__body">
-              Reusable workflows and runtime add-ons pi loads for{" "}
-              {workspace?.name ?? "this workspace"}.
+              {t("customize.description", {
+                workspace: workspace?.name ?? t("settings.view.thisWorkspace"),
+              })}
             </p>
           </div>
           <div className="view-header__actions">
             {workspacePicker}
             <button
-              aria-label="Refresh"
+              aria-label={t("review.refresh")}
               className="icon-button resource-refresh"
-              title="Refresh"
+              title={t("review.refresh")}
               type="button"
               onClick={onRefresh}
             >
@@ -123,9 +128,9 @@ export function CustomizePage({
               <button
                 className="button button--primary"
                 type="button"
-                onClick={() => onTryCommand(NEW_SKILL_PROMPT)}
+                onClick={() => onTryCommand(newSkillPrompt())}
               >
-                New skill
+                {t("customize.newSkill")}
               </button>
             ) : null}
           </div>
@@ -133,21 +138,21 @@ export function CustomizePage({
 
         <div className="resource-toolbar">
           <div
-            aria-label="Skills and extensions"
+            aria-label={t("customize.title")}
             className="resource-tabs"
             role="tablist"
             onKeyDown={handleTabKeyDown}
           >
             <ResourceTab
               count={skills.length}
-              label="Skills"
+              label={t("sidebar.navSkills")}
               selected={tab === "skills"}
               tab="skills"
               onSelect={() => onSelectTab("skills")}
             />
             <ResourceTab
               count={extensions.length}
-              label="Extensions"
+              label={t("sidebar.navExtensions")}
               selected={tab === "extensions"}
               tab="extensions"
               onSelect={() => onSelectTab("extensions")}
@@ -156,8 +161,12 @@ export function CustomizePage({
           <label className="resource-search">
             <SearchIcon />
             <input
-              aria-label={`Search ${tab}`}
-              placeholder={`Search ${tab}`}
+              aria-label={t("customize.searchTab", {
+                tab: tab === "skills" ? t("sidebar.navSkills") : t("sidebar.navExtensions"),
+              })}
+              placeholder={t("customize.searchTab", {
+                tab: tab === "skills" ? t("sidebar.navSkills") : t("sidebar.navExtensions"),
+              })}
               spellCheck={false}
               type="search"
               value={query}
@@ -178,10 +187,8 @@ export function CustomizePage({
         >
           {!workspace ? (
             <div className="settings-group resource-empty">
-              <div className="resource-empty__title">Open a folder first</div>
-              <p className="resource-empty__body">
-                Skills and extensions are discovered per workspace, plus your user folders.
-              </p>
+              <div className="resource-empty__title">{t("customize.openFolderFirst")}</div>
+              <p className="resource-empty__body">{t("customize.discoveryDescription")}</p>
             </div>
           ) : tab === "skills" ? (
             <SkillsTab

@@ -4,6 +4,8 @@ import { earlyModifierChords, getSidePanelTabCommand } from "../contracts/ipc";
 import App from "./app/App";
 import { RendererErrorBoundary } from "./app/desktop-recovery";
 import { applyLastTheme } from "./ui/active-theme";
+// Resolves the saved language and paints <html lang> before first render.
+import "./i18n";
 import "./dev-reload-hook";
 import "./styles.css";
 

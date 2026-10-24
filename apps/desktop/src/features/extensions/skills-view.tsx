@@ -4,10 +4,11 @@ import { titleCase } from "../../lib/string-utils";
 import { SkillIcon } from "../../ui/icons";
 import { SettingsGroup, SettingsRow } from "../settings/settings-utils";
 import { sourceScopeGroupLabel } from "./extension-display";
+import { t, useI18n } from "../../i18n";
 import { displayPath, ResourceDetail } from "./resource-detail";
 import { ResourceEmptyState, ResourceList, type ResourceListGroup } from "./resource-list";
 
-const GROUP_ORDER = ["Workspace", "User", "This session"];
+const GROUP_SCOPES = ["project", "user", "temporary"] as const;
 
 interface SkillsTabProps {
   readonly workspace: WorkspaceRecord;
@@ -31,16 +32,13 @@ export function SkillsTab({
   onOpenSkillFolder,
   onTrySkill,
 }: SkillsTabProps) {
+  const { t } = useI18n();
   // The list stays mounted under an open detail so expanded groups, scroll and focus survive.
   const list =
     skills.length === 0 ? (
       <ResourceEmptyState
-        title={searching ? "No skills match" : "No skills yet"}
-        body={
-          searching
-            ? "Try another name, description or slash command."
-            : "Skills are discovered in this workspace and your user skill folders. Create one, or refresh after adding one."
-        }
+        title={searching ? t("skills.noMatch") : t("skills.noneYet")}
+        body={searching ? t("skills.noMatchBody") : t("skills.noneYetBody")}
       />
     ) : (
       <ResourceList
@@ -63,18 +61,18 @@ export function SkillsTab({
                 type="button"
                 onClick={() => onOpenSkillFolder(selected.filePath)}
               >
-                Open folder
+                {t("sidebar.openFolder")}
               </button>
               <button
                 className="button button--primary"
                 type="button"
                 onClick={() => onTrySkill(selected)}
               >
-                Try
+                {t("skills.try")}
               </button>
             </>
           }
-          backLabel="All skills"
+          backLabel={t("skills.all")}
           enabled={selected.enabled}
           icon={<SkillIcon />}
           subtitle={selected.slashCommand}
@@ -85,24 +83,27 @@ export function SkillsTab({
           <p className="resource-detail__description">{selected.description}</p>
           <SettingsGroup>
             <SettingsRow
-              title="Slash command"
-              description="Type it in the composer to run the skill."
+              title={t("skills.slashCommand")}
+              description={t("skills.slashCommandDescription")}
             >
               <code className="resource-detail__code">{selected.slashCommand}</code>
             </SettingsRow>
             <SettingsRow
-              title="Model invocation"
+              title={t("skills.modelInvocation")}
               description={
                 selected.disableModelInvocation
-                  ? "Only runs when you type its slash command."
-                  : "pi can also choose this skill on its own when it fits the task."
+                  ? t("skills.invocationManual")
+                  : t("skills.invocationAutomatic")
               }
             >
               <span className="settings-row__value">
-                {selected.disableModelInvocation ? "Slash command only" : "Automatic"}
+                {selected.disableModelInvocation ? t("skills.slashOnly") : t("skills.automatic")}
               </span>
             </SettingsRow>
-            <SettingsRow title="Location" description={sourceScopeGroupLabel(selected.scope)}>
+            <SettingsRow
+              title={t("skills.location")}
+              description={sourceScopeGroupLabel(selected.scope)}
+            >
               <code className="resource-detail__code" title={selected.filePath}>
                 {displayPath(selected.filePath, workspace.path)}
               </code>
@@ -119,10 +120,10 @@ function groupSkills(
   skills: readonly RuntimeSkillRecord[],
   onToggleSkill: (filePath: string, enabled: boolean) => void,
 ): readonly ResourceListGroup[] {
-  return GROUP_ORDER.map((label) => ({
-    label,
+  return GROUP_SCOPES.map((scope) => ({
+    label: sourceScopeGroupLabel(scope),
     items: skills
-      .filter((skill) => sourceScopeGroupLabel(skill.scope) === label)
+      .filter((skill) => skill.scope === scope)
       .map((skill) => ({
         id: skill.filePath,
         title: titleCase(skill.name),

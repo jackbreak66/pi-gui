@@ -1,4 +1,5 @@
 import { ChatIcon, CloseIcon } from "../../../ui/icons";
+import { t } from "../../../i18n";
 import type { TranscriptAnnotation } from "./annotation-prompt";
 
 /** "N annotations" above the composer; hovering or focusing it lists each quote and comment. */
@@ -10,7 +11,10 @@ export function AnnotationChip({
   readonly onRemove: (id: string) => void;
 }) {
   if (annotations.length === 0) return null;
-  const label = `${annotations.length} annotation${annotations.length === 1 ? "" : "s"}`;
+  const label =
+    annotations.length === 1
+      ? t("annotation.oneAnnotation")
+      : t("annotation.annotationCount", { count: annotations.length });
   return (
     <div className="annotation-chip" data-testid="annotation-chip">
       <button className="annotation-chip__button" type="button">

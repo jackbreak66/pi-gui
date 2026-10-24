@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { SettingsSwitch } from "../settings/settings-controls";
+import { t } from "../../i18n";
 
 export interface ResourceListItem {
   readonly id: string;
@@ -87,7 +88,7 @@ function ResourceGroup({
             <SettingsSwitch
               checked={item.enabled}
               disabled={!item.onToggle}
-              label={`Enable ${item.title}`}
+              label={t("extension.enableItem", { item: item.title })}
               onChange={(enabled) => item.onToggle?.(enabled)}
             />
           </div>
@@ -95,7 +96,7 @@ function ResourceGroup({
       </div>
       {hiddenCount > 0 ? (
         <button className="resource-list__more" type="button" onClick={() => setShowAll(true)}>
-          Show {hiddenCount} more
+          {t("extension.showMore", { count: hiddenCount })}
         </button>
       ) : null}
     </section>

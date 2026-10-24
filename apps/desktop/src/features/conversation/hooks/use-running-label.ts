@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { t } from "../../../i18n";
 
 export function useRunningLabel(startedAt: string | undefined) {
   const [label, setLabel] = useState(() => formatRunningLabel(startedAt));
@@ -23,16 +24,18 @@ export function useRunningLabel(startedAt: string | undefined) {
 
 function formatRunningLabel(startedAt: string | undefined): string {
   if (!startedAt) {
-    return "Working…";
+    return t("conversation.working");
   }
 
   const diffMs = Math.max(0, Date.now() - Date.parse(startedAt));
   const seconds = Math.max(1, Math.floor(diffMs / 1000));
   if (seconds < 60) {
-    return `Working for ${seconds}s`;
+    return t("conversation.workingFor", { time: `${seconds}s` });
   }
 
   const minutes = Math.floor(seconds / 60);
   const remaining = seconds % 60;
-  return remaining === 0 ? `Working for ${minutes}m` : `Working for ${minutes}m ${remaining}s`;
+  return remaining === 0
+    ? t("conversation.workingFor", { time: `${minutes}m` })
+    : t("conversation.workingFor", { time: `${minutes}m ${remaining}s` });
 }

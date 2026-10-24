@@ -5,6 +5,7 @@ import type {
   McpServersSnapshot,
   NewMcpServerInput,
 } from "../../../contracts/ipc";
+import { t, useI18n } from "../../i18n";
 import { SettingsSegmented, SettingsSwitch } from "./settings-controls";
 import { SettingsGroup, SettingsRow } from "./settings-utils";
 
@@ -26,6 +27,7 @@ interface SettingsMcpSectionProps {
 }
 
 export function SettingsMcpSection({ workspaceId, actions }: SettingsMcpSectionProps) {
+  const { t } = useI18n();
   // Tagged with its workspace: after a switch, the old list (whose buttons would act on the new
   // workspace) is gone at once, until the new one loads.
   const [loaded, setLoaded] = useState<
@@ -84,13 +86,13 @@ export function SettingsMcpSection({ workspaceId, actions }: SettingsMcpSectionP
 
   const servers = snapshot?.servers ?? [];
   const problems = [...(error ? [error] : []), ...(snapshot?.errors ?? [])];
-  const globalConfigPath = snapshot?.globalConfigPath ?? "pi's global mcp.json";
+  const globalConfigPath = snapshot?.globalConfigPath ?? t("settings.mcp.globalConfigFallback");
 
   return (
     <>
       <SettingsGroup
-        title="Servers"
-        description={`Shared with pi in the terminal: ${globalConfigPath}, plus this project's .pi/mcp.json.`}
+        title={t("settings.mcp.servers")}
+        description={t("settings.mcp.serversDescription", { path: globalConfigPath })}
       >
         {problems.map((problem) => (
           <div className="settings-row" key={problem}>
@@ -100,8 +102,7 @@ export function SettingsMcpSection({ workspaceId, actions }: SettingsMcpSectionP
         {snapshot && servers.length === 0 ? (
           <div className="settings-row" data-testid="mcp-servers-empty">
             <span className="settings-row__description">
-              No MCP servers yet. Servers come from {globalConfigPath}, which pi in the terminal
-              uses too. Connection status and sign-in show in threads: type /mcp.
+              {t("settings.mcp.empty", { path: globalConfigPath })}
             </span>
           </div>
         ) : null}
@@ -128,15 +129,15 @@ export function SettingsMcpSection({ workspaceId, actions }: SettingsMcpSectionP
         onAdd={(server) => apply(() => actions.onAddServer(server))}
       />
 
-      <SettingsGroup title="Code mode">
+      <SettingsGroup title={t("settings.mcp.codeMode")}>
         <SettingsRow
-          title="Always on"
-          description="Lets the model run scripts that call tools. Turning it on also applies to open threads; turning it off applies to new threads. Off, pi turns it on when an MCP server needs it."
+          title={t("settings.mcp.alwaysOn")}
+          description={t("settings.mcp.alwaysOnDescription")}
         >
           <SettingsSwitch
             checked={snapshot?.codemodeAlwaysOn ?? false}
             disabled={pending || !snapshot}
-            label="Code mode always on"
+            label={t("settings.mcp.codeModeAlwaysOn")}
             onChange={(alwaysOn) => run(() => actions.onSetCodemodeAlwaysOn(alwaysOn))}
           />
         </SettingsRow>
@@ -156,6 +157,7 @@ function McpServerRow({
   readonly onToggle: (enabled: boolean) => void;
   readonly onRemove: () => void;
 }) {
+  const { t } = useI18n();
   const target =
     server.transport === "http"
       ? (server.url ?? "")
@@ -168,7 +170,7 @@ function McpServerRow({
           <div className="settings-row__description">{server.description}</div>
         ) : null}
         <div className="settings-row__description">
-          {server.scope === "project" ? `This project · ${target}` : target}
+          {server.scope === "project" ? t("settings.mcp.thisProject", { target }) : target}
         </div>
       </div>
       <div className="settings-row__actions">
@@ -179,13 +181,13 @@ function McpServerRow({
             type="button"
             onClick={onRemove}
           >
-            Remove
+            {t("common.remove")}
           </button>
         ) : null}
         <SettingsSwitch
           checked={server.enabled}
           disabled={disabled}
-          label={`Enable ${server.name}`}
+          label={t("settings.mcp.enableServer", { name: server.name })}
           onChange={onToggle}
         />
       </div>
@@ -195,9 +197,9 @@ function McpServerRow({
 
 /** Removing deletes the whole entry, including the settings the list never shows. */
 export function removeServerQuestion(server: McpServerRecord): string {
-  const question = `Remove MCP server "${server.name}"? pi in the terminal stops using it too.`;
+  const question = t("settings.mcp.removeQuestion", { name: server.name });
   return server.hasHiddenSettings
-    ? `${question} Its hidden settings (environment variables, headers, sign-in config) are deleted too.`
+    ? t("settings.mcp.removeQuestionHidden", { question, name: server.name })
     : question;
 }
 
@@ -218,6 +220,7 @@ function AddMcpServerForm({
   const [command, setCommand] = useState("");
   const [args, setArgs] = useState("");
   const [url, setUrl] = useState("");
+  const { t } = useI18n();
 
   const ready = name.trim() !== "" && (kind === "command" ? command.trim() : url.trim()) !== "";
 
@@ -239,10 +242,13 @@ function AddMcpServerForm({
   };
 
   return (
-    <SettingsGroup title="Add server" description={`Saved to ${configPath}.`}>
-      <SettingsRow title="Name">
+    <SettingsGroup
+      title={t("settings.mcp.addServer")}
+      description={t("settings.mcp.savedTo", { path: configPath })}
+    >
+      <SettingsRow title={t("settings.mcp.name")}>
         <input
-          aria-label="Server name"
+          aria-label={t("settings.mcp.serverName")}
           className="settings-text-input"
           disabled={disabled}
           placeholder="docs"
@@ -251,23 +257,23 @@ function AddMcpServerForm({
         />
       </SettingsRow>
       <SettingsRow
-        title="What it does"
-        description="Optional. pi tells the model about the server with it."
+        title={t("settings.mcp.whatItDoes")}
+        description={t("settings.mcp.whatItDoesDescription")}
       >
         <input
-          aria-label="Server description"
+          aria-label={t("settings.mcp.serverDescription")}
           className="settings-text-input"
           disabled={disabled}
-          placeholder="Searches the team's docs"
+          placeholder={t("settings.mcp.descriptionPlaceholder")}
           value={description}
           onChange={(event) => setDescription(event.target.value)}
         />
       </SettingsRow>
-      <SettingsRow title="Type">
+      <SettingsRow title={t("settings.mcp.type")}>
         <SettingsSegmented<ServerKind>
-          label="Server type"
+          label={t("settings.mcp.serverType")}
           options={[
-            { value: "command", label: "Command" },
+            { value: "command", label: t("settings.mcp.command") },
             { value: "url", label: "URL" },
           ]}
           value={kind}
@@ -276,9 +282,12 @@ function AddMcpServerForm({
       </SettingsRow>
       {kind === "command" ? (
         <>
-          <SettingsRow title="Command" description="Started on this machine for each thread.">
+          <SettingsRow
+            title={t("settings.mcp.command")}
+            description={t("settings.mcp.commandDescription")}
+          >
             <input
-              aria-label="Server command"
+              aria-label={t("settings.mcp.serverCommand")}
               className="settings-text-input"
               disabled={disabled}
               placeholder="npx"
@@ -287,11 +296,11 @@ function AddMcpServerForm({
             />
           </SettingsRow>
           <SettingsRow
-            title="Arguments"
-            description="Separated by spaces; quote an argument that contains spaces."
+            title={t("settings.mcp.arguments")}
+            description={t("settings.mcp.argumentsDescription")}
           >
             <input
-              aria-label="Server arguments"
+              aria-label={t("settings.mcp.serverArguments")}
               className="settings-text-input"
               disabled={disabled}
               placeholder="-y @modelcontextprotocol/server-filesystem ."
@@ -301,12 +310,9 @@ function AddMcpServerForm({
           </SettingsRow>
         </>
       ) : (
-        <SettingsRow
-          title="URL"
-          description="A streamable HTTP server. If it needs a sign-in, type /mcp login in a thread."
-        >
+        <SettingsRow title="URL" description={t("settings.mcp.urlDescription")}>
           <input
-            aria-label="Server URL"
+            aria-label={t("settings.mcp.serverUrl")}
             className="settings-text-input"
             disabled={disabled}
             placeholder="https://example.com/mcp"
@@ -316,9 +322,7 @@ function AddMcpServerForm({
         </SettingsRow>
       )}
       <div className="settings-row">
-        <span className="settings-row__description">
-          Open threads reload to start it. Add env or headers in the file itself.
-        </span>
+        <span className="settings-row__description">{t("settings.mcp.addServerFootnote")}</span>
         <div className="settings-row__control">
           <button
             className="button"
@@ -328,7 +332,7 @@ function AddMcpServerForm({
               submit().catch(() => undefined);
             }}
           >
-            Add server
+            {t("settings.mcp.addServerButton")}
           </button>
         </div>
       </div>

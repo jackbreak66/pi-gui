@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { t } from "../../i18n";
 import type { SessionTranscriptPin } from "@pi-gui/session-driver";
 import type { TranscriptMessage } from "../../../contracts/timeline-types";
 import { ExtensionCardItem, type RunExtensionAction } from "../conversation/extension-card";
@@ -98,10 +99,10 @@ export function PinnedCards({
                   </button>
                 ) : null}
                 <button
-                  aria-label={`Hide ${pin.card.title}`}
+                  aria-label={t("extension.hideCard", { title: pin.card.title })}
                   className="pinned-card__control icon-button"
                   data-testid="pinned-card-dismiss"
-                  title="Hide until it changes"
+                  title={t("extension.hideCardTitle")}
                   type="button"
                   onClick={(event) => focusComposerAfter(event.currentTarget, () => onDismiss(pin))}
                 >

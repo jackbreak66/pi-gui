@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { ExtensionAction, ExtensionCard, ExtensionCardTone } from "@pi-gui/session-driver";
 import { ExtensionIcon } from "../../ui/icons";
+import { t } from "../../i18n";
 
 /** Asks the app to run one of the fixed actions an extension's button can name. */
 export type RunExtensionAction = (action: ExtensionAction) => void;
@@ -79,13 +80,13 @@ function actionTarget(action: ExtensionAction): string {
     case "openFile":
       return action.line ? `${action.path}:${action.line}` : action.path;
     case "composer":
-      return "Adds to message";
+      return t("extensionCard.addsToMessage");
     case "url":
       return new URL(action.url).host;
     case "command":
       return action.command;
     case "openThread":
-      return "Opens thread";
+      return t("extensionCard.opensThread");
     default:
       return unhandledAction(action);
   }
@@ -98,11 +99,11 @@ function unhandledAction(action: never): string {
 function cardToneLabel(tone: ExtensionCardTone): string | undefined {
   switch (tone) {
     case "success":
-      return "Passed";
+      return t("extensionCard.passed");
     case "warning":
-      return "Warning";
+      return t("extensionCard.warning");
     case "error":
-      return "Failed";
+      return t("extensionCard.failed");
     case "neutral":
       return undefined;
   }

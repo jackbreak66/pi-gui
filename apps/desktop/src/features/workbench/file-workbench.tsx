@@ -9,6 +9,7 @@ import {
 import type { WorkspaceRecord, WorktreeRecord } from "../../../contracts/desktop-state";
 import type { PiDesktopApi } from "../../../contracts/ipc";
 import { FileEditorPane } from "./file-editor-pane";
+import { t } from "../../i18n";
 import { FileExplorer } from "./file-explorer";
 import { activateFile, closeFile, openFile, type FileWorkbenchTabs } from "./file-workbench-state";
 
@@ -52,7 +53,7 @@ export function FileWorkbench({
             return;
           }
           console.error("[renderer] listWorkspaceFiles failed", error);
-          setListError("Couldn't load files");
+          setListError(t("workbench.filesLoadFailed"));
         })
         .finally(() => {
           if (requestIdRef.current !== requestId) {

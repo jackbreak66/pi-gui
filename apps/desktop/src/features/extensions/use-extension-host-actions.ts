@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { SessionRef } from "@pi-gui/session-driver/types";
 import type { PiDesktopApi } from "../../../contracts/ipc";
 import type { useWorkbench } from "../workbench/use-workbench";
+import { t } from "../../i18n";
 
 /**
  * Host actions an extension view asks of the task it is shown for: open a
@@ -72,7 +73,9 @@ export function useExtensionHostActions({
             if (targetRef.current !== current || fileRequestRef.current !== request) return;
             setFileError({
               target: current,
-              message: `Couldn't open ${event.path}. ${error instanceof Error ? error.message : "Try opening the file again."}`,
+              message: `${t("extensionView.openFileFailed", { path: event.path })} ${
+                error instanceof Error ? error.message : t("extensionView.openFileRetry")
+              }`,
             });
           });
       }),

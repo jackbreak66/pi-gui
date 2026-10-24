@@ -7,6 +7,7 @@ import {
   useState,
   type RefObject,
 } from "react";
+import { t } from "../../i18n";
 import type {
   DisplayTimelineItem,
   TimelineTranscriptItem,
@@ -230,7 +231,7 @@ function TranscriptSkeleton() {
         <span className="skeleton-line" style={{ width: "80%" }} />
         <span className="skeleton-line" style={{ width: "72%" }} />
       </div>
-      <span className="sr-only">Loading transcript…</span>
+      <span className="sr-only">{t("conversation.loadingTranscript")}</span>
     </div>
   );
 }
@@ -244,8 +245,8 @@ function TranscriptHydrateError({
 }) {
   return (
     <div className="transcript-hydrate-error" data-testid="transcript-hydrate-error">
-      <h2>Couldn't load this thread</h2>
-      <p>The selected conversation couldn't be restored. Retry to try again.</p>
+      <h2>{t("conversation.couldntLoad")}</h2>
+      <p>{t("conversation.couldntLoadDescription")}</p>
       <div className="transcript-hydrate-error__actions">
         <button
           className="button button--primary"
@@ -254,7 +255,7 @@ function TranscriptHydrateError({
           disabled={retrying || !onRetry}
           onClick={onRetry}
         >
-          {retrying ? "Retrying…" : "Retry"}
+          {retrying ? t("conversation.retrying") : t("conversation.retry")}
         </button>
       </div>
     </div>
@@ -267,8 +268,8 @@ function TranscriptEmptyState() {
       <span className="transcript-empty__glyph" aria-hidden="true">
         <SparkIcon />
       </span>
-      <p className="transcript-empty__title">Start the conversation</p>
-      <p className="transcript-empty__hint">Send a prompt below to begin this session.</p>
+      <p className="transcript-empty__title">{t("conversation.startConversation")}</p>
+      <p className="transcript-empty__hint">{t("conversation.sendPromptHint")}</p>
     </div>
   );
 }

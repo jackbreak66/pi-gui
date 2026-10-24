@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { RuntimeExtensionRecord, RuntimeSnapshot } from "@pi-gui/session-driver/runtime-types";
 import { extensionSourceSummary } from "../../extensions/extension-display";
+import { t } from "../../../i18n";
 import type { PiDesktopApi } from "../../../../contracts/ipc";
 import { nextMenuIndex } from "./use-slash-menu";
 
@@ -317,9 +318,11 @@ function describeExtension(extension: RuntimeExtensionRecord): string {
 
   const contributionParts = [
     extension.commands.length > 0
-      ? pluralizeContribution(extension.commands.length, "command")
+      ? t("composer.mentionCommands", { count: extension.commands.length })
       : undefined,
-    extension.tools.length > 0 ? pluralizeContribution(extension.tools.length, "tool") : undefined,
+    extension.tools.length > 0
+      ? t("composer.mentionTools", { count: extension.tools.length })
+      : undefined,
   ].filter(Boolean);
   if (contributionParts.length > 0) {
     return contributionParts.join(" · ");

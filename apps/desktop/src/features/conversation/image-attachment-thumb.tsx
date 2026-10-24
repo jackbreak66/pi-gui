@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { trapDialogFocus } from "../../ui/dialog-focus";
+import { t, useI18n } from "../../i18n";
 
 interface ImageAttachmentThumbProps {
   readonly src: string;
@@ -10,13 +11,14 @@ interface ImageAttachmentThumbProps {
 
 /** Image attachment thumbnail that opens the full image in a focused viewer when clicked. */
 export function ImageAttachmentThumb({ src, name, className }: ImageAttachmentThumbProps) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   return (
     <>
       <button
-        aria-label={`View ${name}`}
+        aria-label={t("composer.viewImage", { name })}
         className={`image-attachment-thumb ${className}`}
         ref={triggerRef}
         title={name}
@@ -84,7 +86,7 @@ function ImageViewer({
     >
       <img alt={name} className="image-viewer__image" src={src} />
       <button
-        aria-label="Close image"
+        aria-label={t("composer.closeImage")}
         className="image-viewer__close"
         type="button"
         onClick={onClose}

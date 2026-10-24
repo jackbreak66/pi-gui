@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { SettingsSwitch } from "../settings/settings-controls";
+import { t } from "../../i18n";
 
 /** Drill-in page for one skill or extension, in the style of Codex's Hooks detail. */
 export function ResourceDetail({
@@ -62,7 +63,7 @@ export function ResourceDetail({
           <SettingsSwitch
             checked={enabled}
             disabled={!onToggle}
-            label="Enabled"
+            label={t("extension.enabled")}
             onChange={(next) => onToggle?.(next)}
           />
         </div>

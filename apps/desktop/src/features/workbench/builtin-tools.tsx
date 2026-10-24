@@ -1,40 +1,69 @@
 import type { ComponentType, ReactNode } from "react";
 import { BUILTIN_TOOL_KINDS, type BuiltinToolKind } from "../../../contracts/workbench";
 import { DiffIcon, FileIcon, TerminalIcon } from "../../ui/icons";
+import { t, type TranslationKey } from "../../i18n";
 
 interface BuiltinToolDefinition {
-  readonly label: string;
-  /** Shown in the tool chooser. */
-  readonly description: string;
+  /** The icon this tool's tab shows. */
   readonly Icon: ComponentType;
   /** Key that toggles the tool with the platform modifier, when it has one. */
   readonly shortcutKey?: string;
+  /** Label key, resolved in the active language at render time. */
+  readonly labelKey: TranslationKey;
+  /** Description key, shown in the tool chooser. */
+  readonly descriptionKey: TranslationKey;
 }
 
 /** Presentation for every built-in tool; a missing kind fails the build. */
-export const BUILTIN_TOOLS = {
-  files: { label: "Files", description: "Browse files in this checkout", Icon: FileIcon },
+export const BUILTIN_TOOLS: Record<BuiltinToolKind, BuiltinToolDefinition> = {
+  files: {
+    labelKey: "workbench.tool.files",
+    descriptionKey: "workbench.tool.filesDescription",
+    Icon: FileIcon,
+  },
   changes: {
-    label: "Review",
-    description: "Review uncommitted, branch or turn changes",
+    labelKey: "workbench.tool.changes",
+    descriptionKey: "workbench.tool.changesDescription",
     Icon: DiffIcon,
     shortcutKey: "R",
   },
   terminal: {
-    label: "Terminal",
-    description: "Run commands in this task's checkout",
+    labelKey: "workbench.tool.terminal",
+    descriptionKey: "workbench.tool.terminalDescription",
     Icon: TerminalIcon,
     shortcutKey: "J",
   },
-} as const satisfies Record<BuiltinToolKind, BuiltinToolDefinition>;
+};
 
-/** Chooser order follows the contract's kind list. */
-export const BUILTIN_TOOL_ENTRIES = BUILTIN_TOOL_KINDS.map(
-  (kind): BuiltinToolDefinition & { readonly kind: BuiltinToolKind } => ({
-    kind,
-    ...BUILTIN_TOOLS[kind],
-  }),
-);
+export function builtinToolLabel(kind: BuiltinToolKind): string {
+  return t(BUILTIN_TOOLS[kind].labelKey);
+}
+
+export function builtinToolDescription(kind: BuiltinToolKind): string {
+  return t(BUILTIN_TOOLS[kind].descriptionKey);
+}
+
+export interface BuiltinToolEntry {
+  readonly kind: BuiltinToolKind;
+  readonly label: string;
+  readonly description: string;
+  readonly Icon: ComponentType;
+  readonly shortcutKey?: string;
+}
+
+/** Chooser order follows the contract's kind list; labels resolve per render. */
+export function builtinToolEntries(): readonly BuiltinToolEntry[] {
+  return BUILTIN_TOOL_KINDS.map((kind) => {
+    const tool = BUILTIN_TOOLS[kind];
+    return {
+      kind,
+      label: builtinToolLabel(kind),
+      description: builtinToolDescription(kind),
+      Icon: tool.Icon,
+      shortcutKey: tool.shortcutKey,
+    };
+  });
+}
 
 /** The composition root supplies one panel per built-in tool; rendered only while selected. */
 type BuiltinToolPanels = Record<BuiltinToolKind, () => ReactNode>;

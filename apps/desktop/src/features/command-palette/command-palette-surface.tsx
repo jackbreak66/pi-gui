@@ -7,13 +7,14 @@ import { ChatIcon, FileIcon, FolderIcon, ModelIcon } from "../../ui/icons";
 import type { ComposerModelOption } from "../conversation/composer-commands";
 import type { ThreadListEntry } from "../threads/thread-groups";
 import { CommandPalette, type PaletteSection } from "./command-palette";
+import { t, useI18n } from "../../i18n";
 import { rankPaths } from "./fuzzy-match";
 import type { PaletteAction, PaletteMode } from "./palette-actions";
 import {
   buildCommandSections,
   buildFileSections,
   buildListSection,
-  COMMAND_FILTERS,
+  commandFilters,
   FILE_RESULT_LIMIT,
   splitPath,
   type CommandFilter,
@@ -73,6 +74,7 @@ export function CommandPaletteSurface({
   onOpenFile,
   onSelectModel,
 }: CommandPaletteSurfaceProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<CommandFilter>("all");
   const [listing, setListing] = useState<FileListing>({ status: "loading" });
@@ -118,7 +120,11 @@ export function CommandPaletteSurface({
         .filter(Boolean)
         .join(" · "),
       icon: <ChatIcon />,
-      hint: isCurrent ? "Current" : thread.session.status === "running" ? "Running" : undefined,
+      hint: isCurrent
+        ? t("palette.current")
+        : thread.session.status === "running"
+          ? t("palette.running")
+          : undefined,
       run: () => {
         onClose();
         onOpenThread(target);
@@ -153,8 +159,10 @@ export function CommandPaletteSurface({
   let sections: readonly PaletteSection[];
   let emptyText: string;
   if (mode === "files") {
-    label = "Go to file";
-    placeholder = fileScope ? `Search files in ${fileScope.label}` : "Search files";
+    label = t("palette.goToFileLabel");
+    placeholder = fileScope
+      ? t("palette.searchFilesIn", { scope: fileScope.label })
+      : t("palette.searchFiles");
     sections =
       fileScope && files
         ? buildFileSections({
@@ -177,22 +185,24 @@ export function CommandPaletteSurface({
           })
         : [];
     emptyText = !fileScope
-      ? "Open a thread to search its files."
+      ? t("palette.openThreadToSearchFiles")
       : listing.status === "loading"
-        ? "Loading files…"
+        ? t("palette.loadingFiles")
         : listing.status === "error"
-          ? "Couldn't load files."
+          ? t("palette.couldntLoadFiles")
           : query !== fileQuery
-            ? "Searching…"
+            ? t("palette.searching")
             : query.trim()
-              ? "No matching files."
-              : `Type to search ${(files?.length ?? 0).toLocaleString()} files.`;
+              ? t("palette.noMatchingFiles")
+              : t("palette.typeToSearch", {
+                  count: (files?.length ?? 0).toLocaleString(),
+                });
   } else if (mode === "models") {
-    label = "Switch model";
-    placeholder = "Switch model";
+    label = t("palette.switchModelLabel");
+    placeholder = t("palette.switchModelLabel");
     sections = buildListSection({
       id: "models",
-      label: "Models",
+      label: t("palette.sectionModels"),
       query,
       candidates: (modelScope?.options ?? []).map((option) => ({
         id: `model:${option.providerId}/${option.modelId}`,
@@ -201,7 +211,7 @@ export function CommandPaletteSurface({
         hint:
           option.providerId === modelScope?.currentProvider &&
           option.modelId === modelScope.currentModelId
-            ? "Current"
+            ? t("palette.current")
             : undefined,
         run: () => {
           onClose();
@@ -209,10 +219,12 @@ export function CommandPaletteSurface({
         },
       })),
     });
-    emptyText = modelScope?.options.length ? "No matching models." : "No models available.";
+    emptyText = modelScope?.options.length
+      ? t("palette.noMatchingModels")
+      : t("composer.modelOptionsEmptyTitle");
   } else {
-    label = "Command palette";
-    placeholder = "Search chats, workspaces and actions";
+    label = t("palette.commandPalette");
+    placeholder = t("palette.searchChatsWorkspacesActions");
     sections = buildCommandSections({
       query,
       filter,
@@ -220,14 +232,14 @@ export function CommandPaletteSurface({
       workspaces: workspaceCandidates,
       actions: actionCandidates,
     });
-    emptyText = query.trim() ? "No matches." : "Nothing here yet.";
+    emptyText = query.trim() ? t("palette.noMatches") : t("palette.nothingHereYet");
   }
 
   return (
     <CommandPalette
       activeFilter={mode === "commands" ? filter : undefined}
       emptyText={emptyText}
-      filters={mode === "commands" ? COMMAND_FILTERS : undefined}
+      filters={mode === "commands" ? commandFilters() : undefined}
       label={label}
       placeholder={placeholder}
       query={query}

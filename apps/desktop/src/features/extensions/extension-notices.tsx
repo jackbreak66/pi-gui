@@ -1,10 +1,11 @@
 import type { SessionExtensionNoticeRecord } from "../../../contracts/desktop-state";
+import { t } from "../../i18n";
 
 // Same words terminal pi prints before a warning or error notify; info has none.
 const LEVEL_PREFIX: Record<SessionExtensionNoticeRecord["level"], string | undefined> = {
   info: undefined,
-  warning: "Warning:",
-  error: "Error:",
+  warning: t("extension.warningPrefix"),
+  error: t("extension.errorPrefix"),
 };
 
 /** Draws `ctx.ui.notify` toasts above the composer. Main adds and expires them. */

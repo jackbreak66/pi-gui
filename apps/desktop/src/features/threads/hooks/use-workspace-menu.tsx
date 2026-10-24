@@ -1,3 +1,4 @@
+import { t } from "../../../i18n";
 import {
   useEffect,
   useRef,
@@ -142,7 +143,7 @@ export function useWorkspaceMenu(params: UseWorkspaceMenuParams): WorkspaceMenuS
 
   const removeWorkspace = (workspace: WorkspaceRecord) => {
     const confirmed = window.confirm(
-      `Remove ${workspace.name} from pi-gui? This will not delete any files.`,
+      t("workspaceMenu.removeWorkspaceConfirm", { name: workspace.name }),
     );
     setWorkspaceMenuId(null);
     setWorkspaceRenameId(null);
@@ -174,7 +175,7 @@ export function useWorkspaceMenu(params: UseWorkspaceMenuParams): WorkspaceMenuS
 
   const removeWorktree = (workspaceId: string, worktree: WorktreeRecord) => {
     const confirmed = window.confirm(
-      `Remove worktree ${worktree.name}? This removes the git worktree from disk.`,
+      t("workspaceMenu.removeWorktreeConfirm", { name: worktree.name }),
     );
     if (!confirmed || !api) {
       return;

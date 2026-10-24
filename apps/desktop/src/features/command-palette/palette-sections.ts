@@ -1,4 +1,5 @@
 import type { PaletteFilter, PaletteItem, PaletteSection } from "./command-palette";
+import { t } from "../../i18n";
 import { rankByFuzzy, type RankedMatch } from "./fuzzy-match";
 
 /** An item before matching; the palette highlights its title. */
@@ -6,12 +7,14 @@ export type PaletteCandidate = Omit<PaletteItem, "titleMatches" | "detailMatches
 
 export type CommandFilter = "all" | "chats" | "workspaces" | "actions";
 
-export const COMMAND_FILTERS: readonly PaletteFilter<CommandFilter>[] = [
-  { id: "all", label: "All" },
-  { id: "chats", label: "Chats" },
-  { id: "workspaces", label: "Workspaces" },
-  { id: "actions", label: "Actions" },
-];
+export function commandFilters(): readonly PaletteFilter<CommandFilter>[] {
+  return [
+    { id: "all", label: t("palette.filterAll") },
+    { id: "chats", label: t("palette.filterChats") },
+    { id: "workspaces", label: t("palette.filterWorkspaces") },
+    { id: "actions", label: t("palette.filterActions") },
+  ];
+}
 
 const RECENT_CHAT_COUNT = 5;
 const ALL_FILTER_LIMITS = { chats: 8, workspaces: 5, actions: 8 } as const;
@@ -53,24 +56,34 @@ export function buildCommandSections(input: {
   if (query.trim() === "") {
     switch (filter) {
       case "chats":
-        return [{ id: "chats", label: "Chats", items: chats.slice(0, SINGLE_FILTER_LIMIT) }];
+        return [
+          {
+            id: "chats",
+            label: t("palette.sectionChats"),
+            items: chats.slice(0, SINGLE_FILTER_LIMIT),
+          },
+        ];
       case "workspaces":
-        return [{ id: "workspaces", label: "Workspaces", items: workspaces }];
+        return [{ id: "workspaces", label: t("palette.sectionWorkspaces"), items: workspaces }];
       case "actions":
-        return [{ id: "actions", label: "Actions", items: actions }];
+        return [{ id: "actions", label: t("palette.sectionActions"), items: actions }];
       case "all":
         return [
-          { id: "recents", label: "Recents", items: chats.slice(0, RECENT_CHAT_COUNT) },
-          { id: "actions", label: "Actions", items: actions },
+          {
+            id: "recents",
+            label: t("palette.sectionRecents"),
+            items: chats.slice(0, RECENT_CHAT_COUNT),
+          },
+          { id: "actions", label: t("palette.sectionActions"), items: actions },
         ];
     }
   }
 
   const single = filter !== "all";
   const kinds = [
-    { id: "chats", label: "Chats", candidates: chats },
-    { id: "workspaces", label: "Workspaces", candidates: workspaces },
-    { id: "actions", label: "Actions", candidates: actions },
+    { id: "chats", label: t("palette.sectionChats"), candidates: chats },
+    { id: "workspaces", label: t("palette.sectionWorkspaces"), candidates: workspaces },
+    { id: "actions", label: t("palette.sectionActions"), candidates: actions },
   ] as const;
   return kinds
     .filter((kind) => !single || kind.id === filter)
@@ -110,7 +123,7 @@ export function buildFileSections(input: {
     return [
       {
         id: "open-files",
-        label: "Open files",
+        label: t("palette.sectionOpenFiles"),
         items: [...openTabs].reverse().map(toCandidate),
       },
     ];
@@ -126,7 +139,7 @@ export function buildFileSections(input: {
       detailMatches: match.positions.filter((position) => position < directory.length),
     };
   });
-  return [{ id: "files", label: "Files", items }];
+  return [{ id: "files", label: t("palette.sectionFiles"), items }];
 }
 
 export function buildListSection(input: {

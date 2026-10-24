@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { t } from "../../i18n";
 import type { SessionRef } from "@pi-gui/session-driver/types";
 import type { PiDesktopApi } from "../../../contracts/ipc";
 import type {
@@ -119,16 +120,13 @@ export function ExtensionViewPanel({
       if (disposed) return;
       if (channel) channel.port1.postMessage(message);
       else if (beforeMount.length < MAX_BUFFERED_MESSAGES) beforeMount.push(message);
-      else
-        fail(
-          "The extension sent too many messages before its view was ready. Reload the view to reconnect.",
-        );
+      else fail(t("extensionView.tooManyMessages"));
     };
 
     const attachFrame = (frame: HTMLIFrameElement) => {
       if (disposed || !connection || !frame.contentWindow) return;
       if (channel) {
-        fail("The extension frame reloaded. Reload the view to reconnect.");
+        fail(t("extensionView.frameReloaded"));
         return;
       }
       const opened = connection;
@@ -146,7 +144,7 @@ export function ExtensionViewPanel({
           fail(
             typeof message.message === "string"
               ? message.message.slice(0, 4096)
-              : "The extension view could not start.",
+              : t("extensionView.startFailed"),
           );
           return;
         }
@@ -190,8 +188,7 @@ export function ExtensionViewPanel({
           if (isCurrentMount()) fail(error instanceof Error ? error.message : String(error));
         });
       };
-      channel.port1.onmessageerror = () =>
-        fail("The extension sent a message that could not be read.");
+      channel.port1.onmessageerror = () => fail(t("extensionView.unreadableMessage"));
       channel.port1.start();
       // An opaque-origin frame requires '*'; the target is this exact iframe window and the
       // transferred capability is a dedicated port, never a broadcast window-message channel.
@@ -209,15 +206,14 @@ export function ExtensionViewPanel({
     attachFrameRef.current = attachFrame;
 
     if (view.state === "error") {
-      fail(view.error ?? "This extension view is unavailable.");
+      fail(view.error ?? t("extensionView.unavailable"));
       return dispose;
     }
     unsubscribe = api.onExtensionViewMessage((event) => {
       if (disposed) return;
       if (!connection) {
         if (beforeOpen.length < MAX_BUFFERED_MESSAGES) beforeOpen.push(event);
-        else
-          fail("Too many extension messages arrived while opening the view. Reload to reconnect.");
+        else fail(t("extensionView.tooManyOpening"));
       } else if (event.connectionId === connection.connectionId) deliver(event.message);
     });
     void api
@@ -239,7 +235,7 @@ export function ExtensionViewPanel({
           if (disposed) return;
           setState({ kind: "mounting", connection: opened });
           readyTimer = window.setTimeout(
-            () => fail("The extension view did not finish loading. Reload it to try again."),
+            () => fail(t("extensionView.loadTimeout")),
             FRAME_READY_TIMEOUT_MS,
           );
         },
@@ -282,21 +278,21 @@ export function ExtensionViewPanel({
           onClick={() => setReloadNonce((value) => value + 1)}
         >
           <RefreshIcon />
-          Reload view
+          {t("extensionView.reload")}
         </button>
       </header>
       {state.kind === "failed" ? (
         <div className="extension-view-panel__status" role="status">
-          <h3>Couldn’t open this view</h3>
+          <h3>{t("extensionView.couldntOpen")}</h3>
           <p>{state.message}</p>
-          <p>The extension’s commands remain available. Reload view reconnects its interface.</p>
+          <p>{t("extensionView.failedHelp")}</p>
         </div>
       ) : null}
       <div className="extension-view-panel__body">
         {state.kind === "opening" || state.kind === "mounting" ? (
           // Covers the frame while it mounts, so the frame keeps its place when the view becomes ready.
           <div className="extension-view-panel__status extension-view-panel__loading" role="status">
-            Loading extension view…
+            {t("extensionView.loading")}
           </div>
         ) : null}
         {connection ? (

@@ -1,4 +1,6 @@
 import type { ThemeMode, ThemePresetId } from "../../../contracts/desktop-state";
+import { useI18n } from "../../i18n";
+import { t } from "../../i18n";
 import { SettingsSelect, SettingsSwitch } from "./settings-controls";
 import { SettingsGroup, SettingsRow } from "./settings-utils";
 import type { CSSProperties } from "react";
@@ -14,12 +16,6 @@ interface SettingsAppearanceSectionProps {
   readonly onSetEnableTransparency: (enabled: boolean) => void;
 }
 
-const THEME_MODES: readonly { readonly mode: ThemeMode; readonly label: string }[] = [
-  { mode: "system", label: "System" },
-  { mode: "light", label: "Light" },
-  { mode: "dark", label: "Dark" },
-];
-
 export function SettingsAppearanceSection({
   themeMode,
   themePresetId,
@@ -28,18 +24,25 @@ export function SettingsAppearanceSection({
   enableTransparency,
   onSetEnableTransparency,
 }: SettingsAppearanceSectionProps) {
+  const { t } = useI18n();
+  const themeModes: readonly { readonly mode: ThemeMode; readonly label: string }[] = [
+    { mode: "system", label: t("settings.appearance.system") },
+    { mode: "light", label: t("settings.appearance.light") },
+    { mode: "dark", label: t("settings.appearance.dark") },
+  ];
   const activePreset = themePreset(themePresetId);
+  const presetDescription = themePresetDescription(themePresetId);
   const { variant } = useActiveTheme();
   return (
     <>
-      <SettingsGroup title="Theme" plain>
+      <SettingsGroup title={t("settings.appearance.theme")} plain>
         <div
-          aria-label="Theme"
+          aria-label={t("settings.appearance.themeModeLabel")}
           className="theme-mode-tiles"
           role="radiogroup"
           style={tilePalette(themePresetId)}
         >
-          {THEME_MODES.map((option) => (
+          {themeModes.map((option) => (
             <label className="theme-mode-tile" key={option.mode}>
               <input
                 checked={themeMode === option.mode}
@@ -64,7 +67,13 @@ export function SettingsAppearanceSection({
       </SettingsGroup>
 
       <SettingsGroup>
-        <SettingsRow title="Color preset" description={activePreset.description}>
+        <SettingsRow
+          title={t("settings.appearance.language")}
+          description={t("settings.appearance.languageDescription")}
+        >
+          <LanguageSelect />
+        </SettingsRow>
+        <SettingsRow title={t("settings.appearance.colorPreset")} description={presetDescription}>
           <span className="settings-preset-control">
             <span aria-hidden="true" className="settings-preset-swatches">
               {themeSwatches(themePresetId, variant).map((swatch, index) => (
@@ -72,7 +81,7 @@ export function SettingsAppearanceSection({
               ))}
             </span>
             <SettingsSelect
-              label="Color preset"
+              label={t("settings.appearance.colorPresetLabel")}
               options={themePresets.map((preset) => ({ value: preset.id, label: preset.name }))}
               value={themePresetId}
               onChange={onSetThemePresetId}
@@ -80,17 +89,59 @@ export function SettingsAppearanceSection({
           </span>
         </SettingsRow>
         <SettingsRow
-          title="Window transparency"
-          description="Let desktop colors show through supported surfaces."
+          title={t("settings.appearance.transparency")}
+          description={t("settings.appearance.transparencyDescription")}
         >
           <SettingsSwitch
             checked={enableTransparency}
-            label="Window transparency"
+            label={t("settings.appearance.transparency")}
             onChange={onSetEnableTransparency}
           />
         </SettingsRow>
       </SettingsGroup>
     </>
+  );
+}
+
+/** Preset descriptions live in the renderer so contracts stay language-free. */
+function themePresetDescription(presetId: ThemePresetId): string {
+  switch (presetId) {
+    case "default":
+      return t("settings.themePreset.default");
+    case "catppuccin":
+      return t("settings.themePreset.catppuccin");
+    case "tokyo-night":
+      return t("settings.themePreset.tokyoNight");
+    case "nord":
+      return t("settings.themePreset.nord");
+    case "dracula":
+      return t("settings.themePreset.dracula");
+    case "gruvbox":
+      return t("settings.themePreset.gruvbox");
+    case "github":
+      return t("settings.themePreset.github");
+    case "vscode":
+      return t("settings.themePreset.vscode");
+  }
+}
+
+function LanguageSelect() {
+  const { t, languageSetting, setLanguageSetting } = useI18n();
+  return (
+    <SettingsSelect
+      label={t("settings.appearance.language")}
+      value={languageSetting}
+      options={[
+        { value: "auto", label: t("settings.appearance.system") },
+        { value: "en-US", label: "English" },
+        { value: "zh-CN", label: "简体中文" },
+      ]}
+      onChange={(value) => {
+        if (value === "auto" || value === "en-US" || value === "zh-CN") {
+          setLanguageSetting(value);
+        }
+      }}
+    />
   );
 }
 

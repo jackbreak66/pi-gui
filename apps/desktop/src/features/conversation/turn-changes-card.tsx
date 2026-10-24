@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import type { TurnChangeSummary, TurnChangedFile } from "../../../contracts/review";
+import { t } from "../../i18n";
 import { FileDiffIcon } from "../../ui/icons";
 
 const COLLAPSED_FILE_COUNT = 5;
@@ -29,18 +30,16 @@ export function TurnChangesCard({
   const firstFile = files[0];
 
   return (
-    <section
-      className="turn-changes"
-      aria-label="Files changed in this turn"
-      data-testid="turn-changes"
-    >
+    <section className="turn-changes" aria-label={t("turnChanges.aria")} data-testid="turn-changes">
       <header className="turn-changes__header">
         <span className="turn-changes__glyph" aria-hidden="true">
           <FileDiffIcon />
         </span>
         <div className="turn-changes__summary">
           <span className="turn-changes__title">
-            {`Edited ${files.length} ${files.length === 1 ? "file" : "files"}`}
+            {files.length === 1
+              ? t("turnChanges.editedOne")
+              : t("turnChanges.editedMany", { count: files.length })}
           </span>
           <LineStats lines={totals} />
         </div>
@@ -50,7 +49,7 @@ export function TurnChangesCard({
             className="turn-changes__review"
             onClick={() => onOpen(turn, firstFile.path)}
           >
-            Review
+            {t("turnChanges.review")}
           </button>
         ) : null}
       </header>
@@ -85,7 +84,7 @@ export function TurnChangesCard({
                 );
               }}
             >
-              {`Show ${hidden} more`}
+              {t("turnChanges.showMore", { count: hidden })}
             </button>
           </li>
         ) : null}
@@ -108,7 +107,7 @@ function FileStats({ file }: { readonly file: TurnChangedFile }) {
   return file.lines ? (
     <LineStats lines={file.lines} />
   ) : (
-    <span className="turn-changes__stats turn-changes__binary">Binary</span>
+    <span className="turn-changes__stats turn-changes__binary">{t("turnChanges.binary")}</span>
   );
 }
 
